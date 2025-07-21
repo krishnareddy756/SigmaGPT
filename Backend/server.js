@@ -8,8 +8,9 @@ const PORT = 8080;
 app.use(express.json());
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://sigmagpt-frontend.vercel.app' // this will be your frontend URL
+  'https://sigma-gpt-43mi.vercel.app'
 ];
+
 
 app.use(cors({
   origin: allowedOrigins,
