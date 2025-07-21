@@ -6,10 +6,16 @@ import chatRoutes from './routes/chat.js';
 const app=express();
 const PORT = 8080;
 app.use(express.json());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://sigmagpt-frontend.vercel.app' // this will be your frontend URL
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
 }));
+
 app.use('/api', chatRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); 
