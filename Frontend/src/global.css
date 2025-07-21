@@ -1,10 +1,10 @@
-/* App.css */
+/* src/global.css */
 :root {
-  --bg-dark: #1e1e1e; /* VS Code dark theme background */
+  --bg-dark: #1e1e1e;
   --bg-darker: #181818;
   --bg-light: #252526;
-  --accent-primary: #569cd6; /* VS Code blue */
-  --accent-secondary: #4ec9b0; /* VS Code teal */
+  --accent-primary: #569cd6;
+  --accent-secondary: #4ec9b0;
   --text-primary: #e0e0e0;
   --text-secondary: #858585;
   --border-color: #2d2d2d;
@@ -12,13 +12,21 @@
   --code-bg: #1e1e1e;
 }
 
-.app {
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
   background-color: var(--bg-dark);
   color: var(--text-primary);
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  line-height: 1.6;
+}
+
+code {
+  font-family: 'Fira Code', monospace;
 }
 
 /* Scrollbar styling */

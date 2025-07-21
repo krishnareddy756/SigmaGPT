@@ -1,0 +1,229 @@
+.navbar {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover {
+  transform: scale(1.05);
+}
+
+.navbar-brand span {
+  display: flex;
+  align-items: center;
+  font-size: 1.2em;
+  margin-right: 0.3rem;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: left 0.3s ease;
+}
+
+.nav-link:hover::before {
+  left: 0;
+}
+
+.nav-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.nav-link.active {
+  color: white;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.navbar-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.cta-button {
+  background: linear-gradient(45deg, #4e54c8, #8f94fb);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 15px rgba(78, 84, 200, 0.3);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* To increase height (e.g., from 60px to 80px) */
+.navbar {
+  height: 80px; /* Increased from 60px */
+}
+
+.navbar-container {
+  height: 80px; /* Match navbar height */
+}
+
+/* Adjust other elements if needed */
+.navbar-brand, 
+.nav-link, 
+.cta-button {
+  font-size: 1.1rem; /* Slightly larger text */
+  padding: 10px 15px; /* More padding */
+}
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 84, 200, 0.4);
+  background: linear-gradient(45deg, #4348b8, #7b80f0);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem 1.5rem;
+  }
+  
+  .navbar-toggle {
+    display: block;
+  }
+  
+  .navbar-nav {
+    position: fixed;
+    top: 70px;
+    left: -100%;
+    width: 100%;
+    height: calc(100vh - 70px);
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 2rem;
+    transition: left 0.3s ease;
+    gap: 1rem;
+  }
+  
+  .navbar-nav.open {
+    left: 0;
+  }
+  
+  .nav-item {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .nav-link {
+    display: flex;
+    justify-content: center;
+    width: 80%;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .cta-button {
+    margin-top: 0.5rem;
+    width: 80%;
+    justify-content: center;
+  }
+}
+
+/* Scroll Effect */
+.navbar.scrolled {
+  background: rgba(26, 26, 46, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Animation for mobile menu */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.navbar-nav.open .nav-item {
+  animation: slideDown 0.3s ease forwards;
+}
+
+.navbar-nav.open .nav-item:nth-child(1) { animation-delay: 0.1s; }
+.navbar-nav.open .nav-item:nth-child(2) { animation-delay: 0.2s; }
+.navbar-nav.open .nav-item:nth-child(3) { animation-delay: 0.3s; }
+.navbar-nav.open .nav-item:nth-child(4) { animation-delay: 0.4s; }
+.navbar-nav.open .nav-item:nth-child(5) { animation-delay: 0.5s; }

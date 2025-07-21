@@ -4,6 +4,7 @@ import { v1 as uuidv1 } from 'uuid'
 import Sidebar from './Sidebar'
 import ChatWindow from './ChatWindow'
 import Layout from './components/Layout'
+import Navbar from './components/Navbar'
 import { MyContext } from './MyContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { SettingsProvider } from './contexts/SettingsContext'
@@ -38,11 +39,14 @@ function App() {
         <KeyboardProvider>
           <TagProvider>
             <div className='app'>
+              <Navbar />
               <MyContext.Provider value={providerValue}>
-                <Layout
-                  sidebar={<Sidebar />}
-                  mainContent={<ChatWindow />}
-                />
+                <div style={{ marginTop: '80px' }}>
+                  <Layout
+                    sidebar={<Sidebar />}
+                    mainContent={<ChatWindow />}
+                  />
+                </div>
               </MyContext.Provider>
             </div>
           </TagProvider>
