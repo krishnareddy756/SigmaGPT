@@ -6,6 +6,8 @@ import SettingsButton from './components/SettingsButton';
 import SearchButton from './components/SearchButton';
 import ConversationTags from './components/ConversationTags';
 
+const BASE_URL = "https://sigmagpt-backend.onrender.com";
+
 function Sidebar() {
   const {
     allThreads,
@@ -23,7 +25,7 @@ function Sidebar() {
 
   const getAllThreads = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/thread");
+      const response = await fetch(`${BASE_URL}/api/thread`);
       const res = await response.json();
       const filteredData = res.map(thread => ({
         id: thread.threadId,
@@ -39,7 +41,6 @@ function Sidebar() {
     }
   };
 
-  // Filter threads based on search query
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredThreads(allThreads || []);
@@ -66,7 +67,7 @@ function Sidebar() {
   const changeThread = async (newThreadId) => {
     setCurrThreadId(newThreadId);
     try {
-      const response = await fetch(`http://localhost:8080/api/thread/${newThreadId}`);
+      const response = await fetch(`${BASE_URL}/api/thread/${newThreadId}`);
       const res = await response.json();
       console.log("Changed Thread:", res);
       setPrevChats(res);
@@ -79,7 +80,7 @@ function Sidebar() {
 
   const deleteThread = async (threadId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/thread/${threadId}`, {
+      const response = await fetch(`${BASE_URL}/api/thread/${threadId}`, {
         method: 'DELETE'
       });
       console.log("Deleted Thread:", threadId);
