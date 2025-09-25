@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import chatRoutes from './routes/chat.js';
 import { initializePinecone } from './utils/pinecone.js';
 const app=express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 app.use(express.json());
 const allowedOrigins = [
   'http://localhost:5173',
