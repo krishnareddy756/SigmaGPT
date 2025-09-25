@@ -24,10 +24,14 @@ app.listen(PORT, async () => {
   await connectDB();
   
   // Initialize Pinecone only if API key is provided
-  if (process.env.PINECONE_API_KEY) {
-    await initializePinecone();
-  } else {
-    console.log('Pinecone API key not found. Vector database features will be disabled.');
+  try {
+    if (process.env.PINECONE_API_KEY && process.env.PINECONE_INDEX_NAME) {
+      await initializePinecone();
+    } else {
+      console.log('Pinecone API key or index name not found. Vector database features will be disabled.');
+    }
+  } catch (error) {
+    console.log('Failed to initialize Pinecone, continuing without vector store:', error.message);
   }
 });
 
