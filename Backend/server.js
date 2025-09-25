@@ -10,14 +10,40 @@ app.use(express.json());
 const allowedOrigins = [
   'http://localhost:5173',
   'https://sigma-gpt-43mi.vercel.app',
+  'https://sigma-gpt-mig8.vercel.app',
   'https://sigmagpt-langchain-backend.onrender.com'
 ];
 
-
-app.use(cors({
-  origin: allowedOrigins,
+// CORS configuration with dynamic origin checking
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if the origin is in our allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow any Vercel deployment (*.vercel.app)
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Allow any localhost for development
+    if (origin.includes('localhost')) {
+      return callback(null, true);
+    }
+    
+    // Reject other origins
+    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    return callback(new Error(msg), false);
+  },
   methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
-}));
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 
 app.use('/api', chatRoutes);
 app.listen(PORT, async () => {
