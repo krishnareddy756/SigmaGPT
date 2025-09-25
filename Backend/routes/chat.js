@@ -1,6 +1,8 @@
 import express from 'express';
 import Thread from '../models/Thread.js';
 import getDeepSeekResponse from "../utils/together.js";
+import { processWithAgent } from '../agents/sigmaAgent.js';
+import { addDocumentToVector } from '../utils/pinecone.js';
 const router = express.Router();
 
 //test route
@@ -59,9 +61,70 @@ router.delete('/thread/:threadId', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-router.post('/chat',async(req,res)=>{
+// LangChain agent chat endpoint
+router.post('/chat', async (req, res) => {
     const { threadId, message } = req.body;
-    if(!threadId || !message) {
+    if (!threadId || !message) {
+        return res.status(400).json({ error: 'Thread ID and message are required' });
+    }
+
+    try {
+        let thread = await Thread.findOne({ threadId: threadId });
+        if (!thread) {
+            thread = new Thread({
+                threadId: threadId,
+                title: message.slice(0, 50), // Use first 50 chars as title
+                messages: [{ role: 'user', content: message }]
+            });
+        } else {
+            thread.messages.push({ role: 'user', content: message });
+        }
+
+        // Get chat history for context
+        const chatHistory = thread.messages.slice(-10); // Last 10 messages for context
+
+        // Process with LangChain agent
+        const agentResponse = await processWithAgent(message, chatHistory);
+
+        // Add assistant response to thread
+        thread.messages.push({ 
+            role: 'assistant', 
+            content: agentResponse.answer,
+            metadata: {
+                toolCalls: agentResponse.toolCalls,
+                context: agentResponse.context
+            }
+        });
+
+        // Save to database
+        await thread.save();
+
+        // Add to vector store for future retrieval (if not disabled)
+        try {
+            await addDocumentToVector(
+                `User: ${message}\nAssistant: ${agentResponse.answer}`,
+                { threadId, timestamp: new Date().toISOString() }
+            );
+        } catch (vectorError) {
+            console.log('Vector store temporarily disabled');
+        }
+
+        res.json({
+            reply: agentResponse.answer,
+            toolCalls: agentResponse.toolCalls,
+            context: agentResponse.context
+        });
+
+    } catch (error) {
+        console.error('Error in chat:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Legacy endpoint for backward compatibility
+router.post('/chat/legacy', async (req, res) => {
+    const { threadId, message } = req.body;
+    if (!threadId || !message) {
         return res.status(400).json({ error: 'Thread ID and message are required' });
     }
     try {
@@ -70,19 +133,17 @@ router.post('/chat',async(req,res)=>{
             thread = new Thread({
                 threadId: threadId,
                 title: message,
-                messages: [{role: 'user', content: message}]
+                messages: [{ role: 'user', content: message }]
             });
-        }
-        else{
+        } else {
             thread.messages.push({ role: 'user', content: message });
         }
         const assistantResponse = await getDeepSeekResponse(message);
 
         thread.messages.push({ role: 'assistant', content: assistantResponse });
-        const updatedAt = await thread.save();
-        res.json({reply:assistantResponse})
+        await thread.save();
+        res.json({ reply: assistantResponse });
 
-       
     } catch (error) {
         console.error('Error adding message:', error);
         res.status(500).json({ error: 'Internal Server Error' });

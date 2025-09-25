@@ -28,7 +28,7 @@ function ChatWindow() {
 
     try {
       const response = await fetch(
-        "https://sigmagpt-backend.onrender.com/api/chat", // 🔄 Updated URL
+        "http://localhost:8080/api/chat", // Local backend
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

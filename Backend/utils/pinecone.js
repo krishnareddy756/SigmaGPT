@@ -15,8 +15,8 @@ export const initializePinecone = async () => {
     const index = pineconeClient.Index(process.env.PINECONE_INDEX_NAME);
 
     const embeddings = new OpenAIEmbeddings({
-      openAIApiKey: process.env.OPENAI_API_KEY,
-      modelName: process.env.OPENAI_EMBED_MODEL,
+      apiKey: process.env.OPENAI_API_KEY,
+      model: process.env.OPENAI_EMBED_MODEL || "text-embedding-3-small",
     });
 
     vectorStore = await PineconeStore.fromExistingIndex(embeddings, {

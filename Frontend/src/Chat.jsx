@@ -8,12 +8,14 @@ function Chat() {
   const { newChat, prevChats,reply } = useContext(MyContext);
   const [latestReply, setLatestReply] = useState(null);
   useEffect(()=>{
-    if(reply === null) {
+    if(reply === null || reply === undefined) {
       setLatestReply(null);
       return;
     }
     if(!prevChats?.length) return;
-    const content=reply.split(" ");
+    // Ensure reply is a string before splitting
+    const replyText = typeof reply === 'string' ? reply : String(reply);
+    const content=replyText.split(" ");
     let idx=0;
     const interval= setInterval(() => {
       setLatestReply(content.slice(0, idx+1).join(" "));

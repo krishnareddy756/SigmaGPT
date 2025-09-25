@@ -9,8 +9,8 @@ import { searchSimilarDocuments } from '../utils/pinecone.js';
 
 // Initialize the LLM
 const llm = new ChatOpenAI({
-  openAIApiKey: process.env.OPENAI_API_KEY,
-  modelName: process.env.OPENAI_CHAT_MODEL,
+  apiKey: process.env.OPENAI_API_KEY,
+  model: process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
   temperature: 0.0,
   streaming: true,
 });

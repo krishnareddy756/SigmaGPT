@@ -3,6 +3,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import chatRoutes from './routes/chat.js';
+import { initializePinecone } from './utils/pinecone.js';
 const app=express();
 const PORT = 8080;
 app.use(express.json());
@@ -18,9 +19,10 @@ app.use(cors({
 }));
 
 app.use('/api', chatRoutes);
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`); 
-    connectDB();
+  await connectDB();
+  await initializePinecone();
 });
 
 const connectDB = async () => {
