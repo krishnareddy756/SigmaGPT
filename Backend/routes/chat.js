@@ -1,6 +1,5 @@
 import express from 'express';
 import Thread from '../models/Thread.js';
-import getDeepSeekResponse from "../utils/together.js";
 import { processWithAgent } from '../agents/sigmaAgent.js';
 import { addDocumentToVector } from '../utils/pinecone.js';
 const router = express.Router();
@@ -138,7 +137,8 @@ router.post('/chat/legacy', async (req, res) => {
         } else {
             thread.messages.push({ role: 'user', content: message });
         }
-        const assistantResponse = await getDeepSeekResponse(message);
+        const result = await processWithAgent(message);
+        const assistantResponse = result.response;
 
         thread.messages.push({ role: 'assistant', content: assistantResponse });
         await thread.save();

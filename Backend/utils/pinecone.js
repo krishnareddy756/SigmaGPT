@@ -8,6 +8,10 @@ let vectorStore = null;
 
 export const initializePinecone = async () => {
   try {
+    if (!process.env.PINECONE_API_KEY || !process.env.PINECONE_INDEX_NAME) {
+      throw new Error('Pinecone API key or index name not provided');
+    }
+    
     pineconeClient = new Pinecone({
       apiKey: process.env.PINECONE_API_KEY,
     });

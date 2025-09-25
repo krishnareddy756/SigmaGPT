@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 const defaultShortcuts = {
   'ctrl+n': 'newChat',
@@ -30,21 +30,21 @@ export const KeyboardProvider = ({ children }) => {
   const [handlers, setHandlers] = useState({});
 
   // Register a handler for a specific action
-  const registerHandler = (action, handler) => {
+  const registerHandler = useCallback((action, handler) => {
     setHandlers(prev => ({
       ...prev,
       [action]: handler
     }));
-  };
+  }, []);
 
   // Unregister a handler
-  const unregisterHandler = (action) => {
+  const unregisterHandler = useCallback((action) => {
     setHandlers(prev => {
       const newHandlers = { ...prev };
       delete newHandlers[action];
       return newHandlers;
     });
-  };
+  }, []);
 
   // Parse keyboard event to shortcut string
   const eventToShortcut = (event) => {
@@ -80,17 +80,22 @@ export const KeyboardProvider = ({ children }) => {
 
   // Built-in handlers
   useEffect(() => {
-    registerHandler('showShortcuts', () => {
-      setShowShortcutsModal(true);
-    });
+    const showShortcutsHandler = () => setShowShortcutsModal(true);
+    const closeModalHandler = () => setShowShortcutsModal(false);
 
-    registerHandler('closeModal', () => {
-      setShowShortcutsModal(false);
-    });
+    setHandlers(prev => ({
+      ...prev,
+      'showShortcuts': showShortcutsHandler,
+      'closeModal': closeModalHandler
+    }));
 
     return () => {
-      unregisterHandler('showShortcuts');
-      unregisterHandler('closeModal');
+      setHandlers(prev => {
+        const newHandlers = { ...prev };
+        delete newHandlers['showShortcuts'];
+        delete newHandlers['closeModal'];
+        return newHandlers;
+      });
     };
   }, []);
 

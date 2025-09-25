@@ -22,7 +22,13 @@ app.use('/api', chatRoutes);
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`); 
   await connectDB();
-  await initializePinecone();
+  
+  // Initialize Pinecone only if API key is provided
+  if (process.env.PINECONE_API_KEY) {
+    await initializePinecone();
+  } else {
+    console.log('Pinecone API key not found. Vector database features will be disabled.');
+  }
 });
 
 const connectDB = async () => {
