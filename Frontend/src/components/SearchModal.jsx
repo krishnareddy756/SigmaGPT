@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { MyContext } from '../MyContext';
 import { useKeyboard } from '../contexts/KeyboardContext';
 import './SearchModal.css';
+import API_BASE_URL from '../config/api.js';
 
 const SearchModal = ({ isOpen, onClose }) => {
   const { allThreads, setCurrThreadId, setPrevChats, setNewChat, setReply } = useContext(MyContext);
@@ -67,7 +68,7 @@ const SearchModal = ({ isOpen, onClose }) => {
         if (thread.title.toLowerCase().includes(searchQuery.toLowerCase())) {
           // Get conversation messages for context
           try {
-            const response = await fetch(`http://localhost:8080/api/thread/${thread.id}`);
+            const response = await fetch(`${API_BASE_URL}/thread/${thread.id}`);
             const messages = await response.json();
             
             // Find matching messages
@@ -166,7 +167,7 @@ const SearchModal = ({ isOpen, onClose }) => {
   const openConversation = async (threadId) => {
     setCurrThreadId(threadId);
     try {
-      const response = await fetch(`http://localhost:8080/api/thread/${threadId}`);
+      const response = await fetch(`${API_BASE_URL}/thread/${threadId}`);
       const res = await response.json();
       setPrevChats(res);
       setNewChat(false);

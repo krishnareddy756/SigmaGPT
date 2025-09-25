@@ -5,8 +5,7 @@ import { v1 as uuidv1 } from 'uuid';
 import SettingsButton from './components/SettingsButton';
 import SearchButton from './components/SearchButton';
 import ConversationTags from './components/ConversationTags';
-
-const BASE_URL = "https://sigmagpt-backend.onrender.com";
+import { BASE_URL } from './config/api.js';
 
 function Sidebar() {
   const {

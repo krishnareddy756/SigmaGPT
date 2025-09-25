@@ -1,7 +1,8 @@
 // utils/streamingChat.js
+import API_BASE_URL from '../config/api.js';
 
 export class StreamingChatClient {
-  constructor(baseUrl = 'http://localhost:8080/api') {
+  constructor(baseUrl = API_BASE_URL) {
     this.baseUrl = baseUrl;
   }
 

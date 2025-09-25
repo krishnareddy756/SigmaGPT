@@ -9,7 +9,8 @@ const PORT = process.env.PORT || 8080;
 app.use(express.json());
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://sigma-gpt-43mi.vercel.app'
+  'https://sigma-gpt-43mi.vercel.app',
+  'https://sigmagpt-langchain-backend.onrender.com'
 ];
 
 

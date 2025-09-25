@@ -3,6 +3,7 @@ import Chat from "./Chat";
 import { MyContext } from "./MyContext";
 import { useContext, useState, useEffect } from "react";
 import { ScaleLoader } from "react-spinners";
+import API_BASE_URL from './config/api.js';
 
 function ChatWindow() {
   const {
@@ -28,7 +29,7 @@ function ChatWindow() {
 
     try {
       const response = await fetch(
-        "http://localhost:8080/api/chat", // Local backend
+        `${API_BASE_URL}/chat`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
