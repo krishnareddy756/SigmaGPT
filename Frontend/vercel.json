@@ -1,10 +1,16 @@
 {
   "env": {
-    "VITE_API_URL": "https://sigmagpt-langchain-backend.onrender.com/api"
+    "VITE_API_URL": "https://sigmagpt-2-9t8u.onrender.com/api"
   },
   "build": {
     "env": {
-      "VITE_API_URL": "https://sigmagpt-langchain-backend.onrender.com/api"
+      "VITE_API_URL": "https://sigmagpt-2-9t8u.onrender.com/api"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
