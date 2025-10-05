@@ -13,19 +13,11 @@ export class CalculatorTool extends Tool {
 
   async _call(input) {
     try {
-      // Extract the actual expression from the input
-      const expression = typeof input === 'string' ? input : (input.input || input.expression || String(input));
-      
-      if (!expression || expression.trim().length === 0) {
-        return "Please provide a mathematical expression to calculate.";
-      }
-
-      console.log(`🧮 Calculator evaluating: "${expression}"`);
-      const result = evaluate(expression.trim());
-      return `${expression} = ${result}`;
+      const expression = typeof input === 'object' ? input.input || input : input;
+      const result = evaluate(expression);
+      return String(`${expression} = ${result}`);
     } catch (error) {
-      console.error('Calculator error:', error);
-      return `Error calculating ${input}: ${error.message}`;
+      return String(`Error calculating ${input}: ${error.message}`);
     }
   }
 }

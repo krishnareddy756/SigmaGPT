@@ -90,21 +90,22 @@ export const searchSimilarDocuments = async (query, k = 3) => {
       return [];
     }
 
-    console.log(`🔍 Searching FREE vector store for: "${query.substring(0, 50)}..."`);
+    console.log(`🔍 Searching FREE vector store for: "${query}"`);
     
-    // Perform similarity search with timeout
-    const searchPromise = vectorStore.similaritySearch(query, k);
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Search timeout')), 10000)
-    );
-    
-    const results = await Promise.race([searchPromise, timeoutPromise]);
+    // Perform similarity search
+    const results = await vectorStore.similaritySearch(query, k);
     
     console.log(`📊 Found ${results.length} similar documents in FREE vector store`);
     
-    return results || [];
+    // Log results for debugging
+    results.forEach((doc, index) => {
+      console.log(`${index + 1}. ${doc.pageContent.substring(0, 100)}...`);
+      console.log(`   Metadata:`, doc.metadata);
+    });
+    
+    return results;
   } catch (error) {
-    console.error('❌ Error searching vector store:', error.message);
+    console.error('❌ Error searching vector store:', error);
     return [];
   }
 };

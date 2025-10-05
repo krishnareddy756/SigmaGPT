@@ -1,17 +1,31 @@
-import express from 'express';
-import 'dotenv/config';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import chatRoutes from './routes/chat.js';
-import { initializePinecone } from './utils/pinecone.js';
-const app=express();
-const PORT = process.env.PORT || 8080;
+const express = require('express');
+require('dotenv/config');
+const { config } = require('dotenv');
+const path = require('path');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const chatRoutes = require('./routes/chat.js');
+const { initializePinecone } = require('./utils/pinecone.js');
+
+// Get the directory of the current module
+const __dirname = path.dirname(__filename);
+
+// Load environment variables with explicit path
+config({ path: path.join(__dirname, '.env') });
+
+console.log('🔧 Environment loaded from:', path.join(__dirname, '.env'));
+console.log('📊 API key available:', !!process.env.OPENAI_API_KEY);
+console.log('🔑 API key starts with:', process.env.OPENAI_API_KEY?.substring(0, 10) + '...');
+const app = express();
+const PORT = process.env.PORT || 10000;
 app.use(express.json());
 const allowedOrigins = [
   'http://localhost:5173',
   'https://sigma-gpt-43mi.vercel.app',
   'https://sigma-gpt-mig8.vercel.app',
-  'https://sigmagpt-langchain-backend.onrender.com'
+  'https://sigmagpt-langchain-backend.onrender.com',
+  'https://sigmagpt-backend.onrender.com',
+  'https://sigmagpt-backend-*.onrender.com'
 ];
 
 // CORS configuration with dynamic origin checking
@@ -46,6 +60,30 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use('/api', chatRoutes);
+
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'SigmaGPT Backend API', 
+    status: 'running',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      chat: '/api/chat',
+      threads: '/api/thread'
+    }
+  });
+});
 
 // Global error handler
 app.use((error, req, res, next) => {

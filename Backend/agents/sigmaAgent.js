@@ -15,6 +15,17 @@ const cleanApiKey = (apiKey) => {
   return cleaned.length > 0 ? cleaned : null;
 };
 
+const apiKey = cleanApiKey(process.env.OPENAI_API_KEY);
+
+if (!apiKey || apiKey.length < 20) {
+  console.error('❌ OpenAI API key is missing or invalid');
+  console.error('API key length:', apiKey ? apiKey.length : 0);
+  console.error('Make sure OPENAI_API_KEY is set in your .env file');
+  throw new Error('OpenAI API key is required');
+}
+
+console.log('✅ OpenAI API key validated, length:', apiKey.length);
+
 // Initialize the LLM
 let llm = null;
 let agentExecutor = null;
@@ -23,17 +34,6 @@ const initializeAgent = async () => {
   if (agentExecutor) return agentExecutor;
 
   try {
-    const apiKey = cleanApiKey(process.env.OPENAI_API_KEY);
-
-    if (!apiKey || apiKey.length < 20) {
-      console.error('❌ OpenAI API key is missing or invalid');
-      console.error('API key length:', apiKey ? apiKey.length : 0);
-      console.error('Make sure OPENAI_API_KEY is set in your .env file');
-      throw new Error('OpenAI API key is required');
-    }
-
-    console.log('✅ OpenAI API key validated, length:', apiKey.length);
-
     llm = new ChatOpenAI({
       apiKey: apiKey,
       model: process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
@@ -54,12 +54,11 @@ You have access to the following tools:
 - final_answer: To provide the final answer to the user
 
 IMPORTANT RULES:
-1. For mathematical problems, use the calculator tool
-2. For questions about current events, recent information, or facts you need to verify, try using the search tool
-3. If tools are not available or fail, provide helpful information based on your training data
-4. Always provide a complete and helpful response, even if tools fail
+1. For mathematical problems, ALWAYS use the calculator tool first
+2. For questions about current events, recent information, or facts you're unsure about, use the search tool
+3. After using tools to gather information, provide a comprehensive final answer
+4. If you can answer directly from your knowledge, you may do so without tools
 5. Be helpful, accurate, and concise
-6. For historical information like dates of birth of freedom fighters, you can provide answers from your knowledge
 
 Context from previous conversations:
 {context}
@@ -82,8 +81,7 @@ Current conversation:
       agent,
       tools,
       maxIterations: 5,
-      verbose: true,
-      returnIntermediateSteps: true,
+      verbose: false,
     });
 
     console.log('✅ Agent initialized successfully');
@@ -104,16 +102,24 @@ export const processWithAgent = async (input, chatHistory = [], streamCallback =
     const context = relevantDocs.map(doc => doc.pageContent).join('\n\n');
 
     // Format chat history
-    const formattedHistory = chatHistory.map(msg => 
-      `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${msg.content}`
-    ).join('\n');
+    const formattedHistory = chatHistory.map(msg => {
+      // Ensure content is always a string
+      const content = typeof msg.content === 'object' ? JSON.stringify(msg.content) : String(msg.content || '');
+      return `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${content}`;
+    }).join('\n');
 
     // Prepare the input
     const agentInput = {
-      input,
-      context,
+      input: String(input || ''),
+      context: String(context || ''),
       chat_history: formattedHistory,
     };
+
+    console.log('Agent input prepared:', {
+      inputType: typeof agentInput.input,
+      contextType: typeof agentInput.context,
+      historyType: typeof agentInput.chat_history
+    });
 
     let finalAnswer = '';
     let toolCalls = [];
@@ -181,25 +187,10 @@ export const processWithAgent = async (input, chatHistory = [], streamCallback =
 
   } catch (error) {
     console.error('Agent execution error:', error);
-    
-    // Provide a helpful fallback response for common queries
-    let fallbackAnswer = '';
-    const lowerInput = input.toLowerCase();
-    
-    if (lowerInput.includes('vice president') && lowerInput.includes('india')) {
-      fallbackAnswer = "As of my last update, Jagdeep Dhankhar is the Vice President of India, having taken office in August 2022. Please note that this information may not be current, and I recommend checking the latest official sources for the most up-to-date information.";
-    } else if (lowerInput.includes('capital') && lowerInput.includes('india')) {
-      fallbackAnswer = "The capital of India is New Delhi. It serves as the seat of the Government of India and houses important institutions like the Parliament, Supreme Court, and the President's residence (Rashtrapati Bhavan).";
-    } else if (lowerInput.includes('freedom fighter') && lowerInput.includes('birth')) {
-      fallbackAnswer = "Here are the birth dates of prominent Indian freedom fighters:\n\n• Mahatma Gandhi - October 2, 1869\n• Jawaharlal Nehru - November 14, 1889\n• Subhas Chandra Bose - January 23, 1897\n• Bhagat Singh - September 28, 1907\n• Rani Lakshmibai - November 19, 1828\n\nPlease note that this information is based on my training data and may need verification from current sources.";
-    } else {
-      fallbackAnswer = 'I apologize, but I encountered an error while processing your request. Please try rephrasing your question or ask something else.';
-    }
-    
     return {
-      answer: fallbackAnswer,
+      answer: 'I apologize, but I encountered an error while processing your request. Please try again.',
       toolCalls: [],
-      context: 'Fallback response due to agent error'
+      context: 'Error occurred'
     };
   }
 };
