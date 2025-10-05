@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: sigmagpt-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm ci
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18.18.0
+      - key: MONGODB_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SERPAPI_API_KEY
+        sync: false
+    autoDeploy: true
+    rootDir: Backend
