@@ -1,8 +1,11 @@
-// utils/pinecone.js - Now using FREE MemoryVectorStore (no dependencies!)
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
+// utils/pinecone.js - Now using FREE FAISS Vector Store
+import { FaissStore } from '@langchain/community/vectorstores/faiss';
 import { HuggingFaceTransformersEmbeddings } from '@langchain/community/embeddings/hf_transformers';
+import fs from 'fs';
+import path from 'path';
 
 let vectorStore = null;
+const VECTOR_STORE_PATH = './vector_store';
 
 // Free local embedding model (no API key needed!)
 const embeddings = new HuggingFaceTransformersEmbeddings({
@@ -11,26 +14,47 @@ const embeddings = new HuggingFaceTransformersEmbeddings({
 
 export const initializePinecone = async () => {
   try {
-    console.log('🚀 Initializing FREE in-memory vector store...');
+    console.log('🚀 Initializing FREE vector store with FAISS...');
     
-    // Create new in-memory vector store with initial document
-    vectorStore = await MemoryVectorStore.fromTexts(
-      ["Welcome to SigmaGPT! This is your AI assistant with memory capabilities."],
-      [{ 
-        id: "init", 
-        timestamp: new Date().toISOString(),
-        type: "welcome"
-      }],
-      embeddings
-    );
+    // Check if existing vector store exists
+    if (fs.existsSync(VECTOR_STORE_PATH)) {
+      console.log('📂 Loading existing vector store...');
+      try {
+        vectorStore = await FaissStore.load(VECTOR_STORE_PATH, embeddings);
+        console.log('✅ Existing vector store loaded successfully');
+      } catch (error) {
+        console.log('⚠️ Could not load existing store, creating new one...');
+        await createNewVectorStore();
+      }
+    } else {
+      console.log('🆕 Creating new vector store...');
+      await createNewVectorStore();
+    }
     
-    console.log('🎉 FREE in-memory vector store initialized successfully!');
+    console.log('🎉 FREE vector store initialized successfully!');
     return vectorStore;
   } catch (error) {
     console.error('❌ Error initializing vector store:', error);
     console.log('Continuing without vector store...');
     return null;
   }
+};
+
+const createNewVectorStore = async () => {
+  // Create new vector store with initial document
+  vectorStore = await FaissStore.fromTexts(
+    ["Welcome to SigmaGPT! This is your AI assistant with memory capabilities."],
+    [{ 
+      id: "init", 
+      timestamp: new Date().toISOString(),
+      type: "welcome"
+    }],
+    embeddings
+  );
+  
+  // Save to disk
+  await vectorStore.save(VECTOR_STORE_PATH);
+  console.log('💾 New vector store created and saved');
 };
 
 export const addDocumentToVector = async (text, metadata = {}) => {
@@ -40,7 +64,7 @@ export const addDocumentToVector = async (text, metadata = {}) => {
       return;
     }
 
-    console.log('📝 Adding document to FREE in-memory vector store...');
+    console.log('📝 Adding document to FREE vector store...');
     
     // Add document to vector store
     await vectorStore.addDocuments([{
@@ -51,7 +75,9 @@ export const addDocumentToVector = async (text, metadata = {}) => {
       }
     }]);
 
-    console.log('✅ Document added to FREE in-memory vector store');
+    // Save to disk (persist changes)
+    await vectorStore.save(VECTOR_STORE_PATH);
+    console.log('✅ Document added and saved to FREE vector store');
   } catch (error) {
     console.error('❌ Error adding document to vector store:', error);
   }
@@ -64,22 +90,21 @@ export const searchSimilarDocuments = async (query, k = 3) => {
       return [];
     }
 
-    console.log(`🔍 Searching FREE in-memory vector store for: "${query}"`);
+    console.log(`🔍 Searching FREE vector store for: "${query.substring(0, 50)}..."`);
     
-    // Perform similarity search
-    const results = await vectorStore.similaritySearch(query, k);
+    // Perform similarity search with timeout
+    const searchPromise = vectorStore.similaritySearch(query, k);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Search timeout')), 10000)
+    );
     
-    console.log(`📊 Found ${results.length} similar documents in FREE in-memory vector store`);
+    const results = await Promise.race([searchPromise, timeoutPromise]);
     
-    // Log results for debugging
-    results.forEach((doc, index) => {
-      console.log(`${index + 1}. ${doc.pageContent.substring(0, 100)}...`);
-      console.log(`   Metadata:`, doc.metadata);
-    });
+    console.log(`📊 Found ${results.length} similar documents in FREE vector store`);
     
-    return results;
+    return results || [];
   } catch (error) {
-    console.error('❌ Error searching vector store:', error);
+    console.error('❌ Error searching vector store:', error.message);
     return [];
   }
 };

@@ -40,10 +40,20 @@ function ChatWindow() {
         }
       );
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const res = await response.json();
-      setReply(res.reply);
+      
+      if (res.error) {
+        throw new Error(res.error);
+      }
+      
+      setReply(res.reply || "I couldn't generate a response. Please try again.");
     } catch (error) {
       console.error("Error fetching reply:", error);
+      setReply("I apologize, but I encountered an error while processing your request. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }

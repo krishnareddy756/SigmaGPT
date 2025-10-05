@@ -5,6 +5,7 @@ import Sidebar from './Sidebar'
 import ChatWindow from './ChatWindow'
 import Layout from './components/Layout'
 import Navbar from './components/Navbar'
+import ErrorBoundary from './components/ErrorBoundary'
 import { MyContext } from './MyContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { SettingsProvider } from './contexts/SettingsContext'
@@ -34,25 +35,27 @@ function App() {
   }
 
   return (
-    <ThemeProvider>
-      <SettingsProvider>
-        <KeyboardProvider>
-          <TagProvider>
-            <div className='app'>
-              <Navbar />
-              <MyContext.Provider value={providerValue}>
-                <div style={{ marginTop: '80px' }}>
-                  <Layout
-                    sidebar={<Sidebar />}
-                    mainContent={<ChatWindow />}
-                  />
-                </div>
-              </MyContext.Provider>
-            </div>
-          </TagProvider>
-        </KeyboardProvider>
-      </SettingsProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <SettingsProvider>
+          <KeyboardProvider>
+            <TagProvider>
+              <div className='app'>
+                <Navbar />
+                <MyContext.Provider value={providerValue}>
+                  <div style={{ marginTop: '80px' }}>
+                    <Layout
+                      sidebar={<Sidebar />}
+                      mainContent={<ChatWindow />}
+                    />
+                  </div>
+                </MyContext.Provider>
+              </div>
+            </TagProvider>
+          </KeyboardProvider>
+        </SettingsProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   )
 }
 

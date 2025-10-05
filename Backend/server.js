@@ -1,9 +1,23 @@
 import express from 'express';
 import 'dotenv/config';
+import { config } from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import chatRoutes from './routes/chat.js';
 import { initializePinecone } from './utils/pinecone.js';
+
+// Get the directory of the current module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load environment variables with explicit path
+config({ path: join(__dirname, '.env') });
+
+console.log('🔧 Environment loaded from:', join(__dirname, '.env'));
+console.log('📊 API key available:', !!process.env.OPENAI_API_KEY);
+console.log('🔑 API key starts with:', process.env.OPENAI_API_KEY?.substring(0, 10) + '...');
 const app=express();
 const PORT = process.env.PORT || 8080;
 app.use(express.json());
@@ -46,31 +60,41 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use('/api', chatRoutes);
+
+// Global error handler
+app.use((error, req, res, next) => {
+  console.error('Global error handler:', error);
+  res.status(500).json({ 
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+  });
+});
+
 app.listen(PORT, async () => {
-  console.log(`Server is running on port ${PORT}`); 
+  console.log(`🚀 Server is running on port ${PORT}`); 
+  console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
   await connectDB();
   
   // Initialize FREE FAISS Vector Store (no API keys needed!)
   try {
     await initializePinecone(); // Now initializes FAISS vector store
+    console.log('✅ Vector store initialized successfully');
   } catch (error) {
-    console.log('Failed to initialize vector store, continuing without it:', error.message);
+    console.log('⚠️ Failed to initialize vector store, continuing without it:', error.message);
   }
 });
 
 const connectDB = async () => {
   try {
-    if (!process.env.MONGODB_URL) {
-      console.log('⚠️ MongoDB URL not provided, running without database persistence');
-      return;
-    }
-    
     await mongoose.connect(process.env.MONGODB_URL);
     console.log('✅ MongoDB connected successfully');
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
-    console.log('⚠️ Continuing without database - conversations will not persist');
-    // Don't exit, continue without database
+    console.error('❌ MongoDB connection error:', error);
+    console.error('Make sure MongoDB is running and the connection string is correct');
+    // Don't exit process, just continue without database for development
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    }
   }
 }
 // app.post('/test',async (req, res) => {

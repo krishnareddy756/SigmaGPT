@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useKeyboard } from '../contexts/KeyboardContext';
 import SettingsPanel from './SettingsPanel';
@@ -10,7 +10,7 @@ const SettingsButton = () => {
   const { registerHandler, unregisterHandler } = useKeyboard();
 
   // Register keyboard shortcuts
-  useState(() => {
+  useEffect(() => {
     registerHandler('toggleTheme', toggleTheme);
     registerHandler('openSettings', () => setShowSettings(true));
 

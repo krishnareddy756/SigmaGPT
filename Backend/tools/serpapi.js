@@ -11,15 +11,25 @@ export class SerpAPITool extends Tool {
     input: z.string().describe("A search query to find current information")
   });
 
-  async _call(query) {
+  async _call(input) {
+    // Extract the actual query string from the input
+    const query = typeof input === 'string' ? input : (input.input || input.query || String(input));
+    
     try {
-      if (!process.env.SERPAPI_API_KEY) {
-        return "Search functionality is currently unavailable. Please provide the information if you have it.";
+      // Check if API key is available
+      if (!process.env.SERPAPI_API_KEY || process.env.SERPAPI_API_KEY === 'your_serpapi_key_here') {
+        return `I cannot search the web right now as the search service is not configured. However, I can provide information based on my training data. Please note this information might not be current.`;
       }
+
+      if (!query || query.trim().length === 0) {
+        return "Please provide a search query.";
+      }
+
+      console.log(`🔍 SerpAPI searching for: "${query}"`);
 
       const response = await getJson({
         engine: "google",
-        q: query,
+        q: query.trim(),
         api_key: process.env.SERPAPI_API_KEY,
         num: 5 // Limit to 5 results
       });
@@ -31,13 +41,15 @@ export class SerpAPITool extends Tool {
           link: result.link
         }));
 
-        return JSON.stringify(results, null, 2);
+        return `Search results for "${query}":\n\n` + results.map((result, i) => 
+          `${i + 1}. **${result.title}**\n   ${result.snippet}\n   Source: ${result.link}`
+        ).join('\n\n');
       } else {
-        return "No search results found for the query.";
+        return "No search results found for this query.";
       }
     } catch (error) {
       console.error('SerpAPI error:', error);
-      return `Search temporarily unavailable. Please provide the information if you have it.`;
+      return `I cannot search the web right now due to a technical issue. I'll provide information based on my training data instead.`;
     }
   }
 }

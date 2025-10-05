@@ -1,5 +1,4 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import Thread from '../models/Thread.js';
 import { processWithAgent } from '../agents/sigmaAgent.js';
 import { addDocumentToVector } from '../utils/pinecone.js';
@@ -25,16 +24,11 @@ router.post('/test', async (req, res) => {
 // Get all threads
 router.get('/thread', async (req, res) => {
     try {   
-        // Check if MongoDB is connected
-        if (mongoose.connection.readyState !== 1) {
-            return res.json([]); // Return empty array if no database
-        }
-        
         const threads = await Thread.find({}).sort({ updatedAt: -1 });
         res.json(threads);
     } catch (error) {
         console.error('Error fetching threads:', error);
-        res.json([]); // Return empty array on error
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -143,10 +137,21 @@ router.post('/chat/legacy', async (req, res) => {
         } else {
             thread.messages.push({ role: 'user', content: message });
         }
-        const result = await processWithAgent(message);
-        const assistantResponse = result.response;
+        // Get chat history for context
+        const chatHistory = thread.messages.slice(-10); // Last 10 messages for context
 
-        thread.messages.push({ role: 'assistant', content: assistantResponse });
+        // Process with LangChain agent
+        const result = await processWithAgent(message, chatHistory);
+        const assistantResponse = result.answer; // Use 'answer' instead of 'response'
+
+        thread.messages.push({ 
+            role: 'assistant', 
+            content: assistantResponse,
+            metadata: {
+                toolCalls: result.toolCalls,
+                context: result.context
+            }
+        });
         await thread.save();
         res.json({ reply: assistantResponse });
 

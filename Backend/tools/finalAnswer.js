@@ -11,7 +11,10 @@ export class FinalAnswerTool extends Tool {
   });
 
   async _call(input) {
-    return input;
+    // Extract the actual answer from the input
+    const answer = typeof input === 'string' ? input : (input.input || input.answer || String(input));
+    console.log(`✅ Final answer provided: "${answer.substring(0, 100)}..."`);
+    return answer;
   }
 }
 
