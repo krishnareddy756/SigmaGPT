@@ -4,11 +4,12 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: cd Backend && npm install --legacy-peer-deps --omit=dev
-    startCommand: cd Backend && node server.js
+    buildCommand: npm install --legacy-peer-deps --omit=dev
+    startCommand: node server.js
+    rootDir: Backend
     envVars:
       - key: NODE_VERSION
-        value: 18.18.0
+        value: 20.18.0
       - key: MONGODB_URL
         sync: false
       - key: OPENAI_API_KEY
