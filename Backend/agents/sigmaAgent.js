@@ -7,9 +7,25 @@ import { serpAPITool } from '../tools/serpapi.js';
 import { finalAnswerTool } from '../tools/finalAnswer.js';
 import { searchSimilarDocuments } from '../utils/pinecone.js';
 
+// Clean and validate API key
+const cleanApiKey = (apiKey) => {
+  if (!apiKey) return null;
+  // Remove any whitespace, newlines, or other invalid characters
+  return apiKey.trim().replace(/[\r\n\t]/g, '');
+};
+
+const apiKey = cleanApiKey(process.env.OPENAI_API_KEY);
+
+if (!apiKey) {
+  console.error('❌ OpenAI API key is missing or invalid');
+  throw new Error('OpenAI API key is required');
+}
+
+console.log('✅ OpenAI API key validated');
+
 // Initialize the LLM
 const llm = new ChatOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: apiKey,
   model: process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
   temperature: 0.0,
   streaming: true,

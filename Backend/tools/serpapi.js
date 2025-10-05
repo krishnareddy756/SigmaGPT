@@ -1,10 +1,15 @@
 // tools/serpapi.js
 import { getJson } from 'serpapi';
 import { Tool } from '@langchain/core/tools';
+import { z } from 'zod';
 
 export class SerpAPITool extends Tool {
   name = "search";
   description = "Useful for searching the internet for current information. Input should be a search query.";
+  
+  schema = z.object({
+    input: z.string().describe("A search query to find current information")
+  });
 
   async _call(query) {
     try {

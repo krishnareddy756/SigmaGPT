@@ -50,15 +50,11 @@ app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`); 
   await connectDB();
   
-  // Initialize Pinecone only if API key is provided
+  // Initialize FREE FAISS Vector Store (no API keys needed!)
   try {
-    if (process.env.PINECONE_API_KEY && process.env.PINECONE_INDEX_NAME) {
-      await initializePinecone();
-    } else {
-      console.log('Pinecone API key or index name not found. Vector database features will be disabled.');
-    }
+    await initializePinecone(); // Now initializes FAISS vector store
   } catch (error) {
-    console.log('Failed to initialize Pinecone, continuing without vector store:', error.message);
+    console.log('Failed to initialize vector store, continuing without it:', error.message);
   }
 });
 
