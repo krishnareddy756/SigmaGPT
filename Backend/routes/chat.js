@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Thread from '../models/Thread.js';
 import { processWithAgent } from '../agents/sigmaAgent.js';
 import { addDocumentToVector } from '../utils/pinecone.js';
@@ -24,11 +25,16 @@ router.post('/test', async (req, res) => {
 // Get all threads
 router.get('/thread', async (req, res) => {
     try {   
+        // Check if MongoDB is connected
+        if (mongoose.connection.readyState !== 1) {
+            return res.json([]); // Return empty array if no database
+        }
+        
         const threads = await Thread.find({}).sort({ updatedAt: -1 });
         res.json(threads);
     } catch (error) {
         console.error('Error fetching threads:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.json([]); // Return empty array on error
     }
 });
 

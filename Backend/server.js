@@ -60,11 +60,17 @@ app.listen(PORT, async () => {
 
 const connectDB = async () => {
   try {
+    if (!process.env.MONGODB_URL) {
+      console.log('⚠️ MongoDB URL not provided, running without database persistence');
+      return;
+    }
+    
     await mongoose.connect(process.env.MONGODB_URL);
-    console.log('MongoDB connected successfully');
+    console.log('✅ MongoDB connected successfully');
   } catch (error) {
-    console.error('MongoDB connection error:', error);
-    // Exit the process if connection fails
+    console.error('❌ MongoDB connection error:', error.message);
+    console.log('⚠️ Continuing without database - conversations will not persist');
+    // Don't exit, continue without database
   }
 }
 // app.post('/test',async (req, res) => {
