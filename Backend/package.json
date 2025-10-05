@@ -17,8 +17,8 @@
         "faiss-node": "^0.5.1",
         "langchain": "^0.3.34",
         "mathjs": "^14.8.0",
-        "mongodb": "^6.0.0",
-        "mongoose": "^8.0.0",
+        "mongodb": "^6.10.0",
+        "mongoose": "^8.7.0",
         "openai": "^5.10.1",
         "serpapi": "^2.2.1",
         "uuid": "^11.1.0",
@@ -26,7 +26,7 @@
     },
     "scripts": {
         "start": "node server.js",
-        "build": "npm install --production",
+        "build": "npm ci --omit=dev",
         "dev": "node server.js"
     }
 }
