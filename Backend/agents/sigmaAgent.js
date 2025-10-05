@@ -44,11 +44,11 @@ You have access to the following tools:
 - final_answer: To provide the final answer to the user
 
 IMPORTANT RULES:
-1. You MUST use tools to help answer questions when appropriate
+1. For questions requiring current/factual information (like population, news, etc.), use the search tool FIRST
 2. For math problems, use the calculator tool
-3. For current events or information you might not know, use the search tool
-4. Always use the final_answer tool to provide your complete response
-5. Be helpful, accurate, and concise
+3. After getting information, use final_answer tool to provide a complete response
+4. If you have enough information to answer directly, you can skip search and use final_answer
+5. Be concise and helpful
 
 Context from previous conversations:
 {context}
@@ -70,8 +70,9 @@ const agent = await createToolCallingAgent({
 const agentExecutor = new AgentExecutor({
   agent,
   tools,
-  maxIterations: 3,
-  verbose: false,
+  maxIterations: 10, // Increased from 3 to allow proper tool usage
+  verbose: true, // Enable verbose for debugging
+  returnIntermediateSteps: true, // Return intermediate steps for debugging
 });
 
 export const processWithAgent = async (input, chatHistory = [], streamCallback = null) => {
@@ -137,9 +138,36 @@ export const processWithAgent = async (input, chatHistory = [], streamCallback =
       const result = await agentExecutor.invoke(agentInput);
       finalAnswer = result.output || 'No answer generated';
     } else {
-      // Non-streaming execution
-      const result = await agentExecutor.invoke(agentInput);
-      finalAnswer = result.output || 'No answer generated';
+      // Non-streaming execution with timeout and fallback
+      try {
+        const result = await Promise.race([
+          agentExecutor.invoke(agentInput),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Agent timeout')), 30000) // 30 second timeout
+          )
+        ]);
+        finalAnswer = result.output || 'No answer generated';
+      } catch (agentError) {
+        console.error('Agent execution failed:', agentError);
+        
+        if (agentError.message === 'Agent timeout' || agentError.message.includes('max iterations')) {
+          console.log('🔄 Agent timeout/max iterations, providing direct response...');
+          
+          try {
+            const directResponse = await llm.invoke([
+              { role: "system", content: "You are SigmaGPT, a helpful AI assistant. Answer the user's question directly and concisely." },
+              { role: "user", content: input }
+            ]);
+            
+            finalAnswer = directResponse.content || 'I apologize, but I cannot process your request at the moment.';
+          } catch (fallbackError) {
+            console.error('Fallback response error:', fallbackError);
+            finalAnswer = 'I apologize, but I encountered an error while processing your request. Please try again.';
+          }
+        } else {
+          throw agentError; // Re-throw if it's not a timeout/iteration issue
+        }
+      }
     }
 
     return {

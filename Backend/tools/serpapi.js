@@ -13,6 +13,10 @@ export class SerpAPITool extends Tool {
 
   async _call(query) {
     try {
+      if (!process.env.SERPAPI_API_KEY) {
+        return "Search functionality is currently unavailable. Please provide the information if you have it.";
+      }
+
       const response = await getJson({
         engine: "google",
         q: query,
@@ -29,11 +33,11 @@ export class SerpAPITool extends Tool {
 
         return JSON.stringify(results, null, 2);
       } else {
-        return "No search results found.";
+        return "No search results found for the query.";
       }
     } catch (error) {
       console.error('SerpAPI error:', error);
-      return `Search error: ${error.message}`;
+      return `Search temporarily unavailable. Please provide the information if you have it.`;
     }
   }
 }
