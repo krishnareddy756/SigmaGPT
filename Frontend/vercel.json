@@ -1,12 +1,20 @@
 {
   "env": {
-    "VITE_API_URL": "https://sigmagpt-2-9t8u.onrender.com/api"
+    "VITE_API_URL": "https://sigmagpt-backend.onrender.com/api"
   },
   "build": {
     "env": {
-      "VITE_API_URL": "https://sigmagpt-2-9t8u.onrender.com/api"
+      "VITE_API_URL": "https://sigmagpt-backend.onrender.com/api"
     }
   },
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node"
+    }
+  ],
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",

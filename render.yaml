@@ -4,16 +4,24 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: npm install --legacy-peer-deps --omit=dev
+    buildCommand: npm install --legacy-peer-deps
     startCommand: node server.js
     rootDir: Backend
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
-      - key: MONGODB_URL
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
         sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: TOGETHER_API_KEY
+        sync: false
       - key: SERPAPI_API_KEY
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: PINECONE_ENVIRONMENT
         sync: false
     autoDeploy: true
