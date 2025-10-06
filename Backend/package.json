@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "type": "module",
     "engines": {
-        "node": ">=18.0.0",
+        "node": "20.18.0",
         "npm": ">=9.0.0"
     },
     "dependencies": {
@@ -17,16 +17,19 @@
         "faiss-node": "^0.5.1",
         "langchain": "^0.3.34",
         "mathjs": "^14.8.0",
-        "mongodb": "^6.3.0",
-        "mongoose": "^8.0.3",
+        "mongodb": "^6.10.0",
+        "mongoose": "^8.8.4",
         "openai": "^5.10.1",
         "serpapi": "^2.2.1",
         "uuid": "^11.1.0",
         "zod": "^3.24.1"
     },
+    "overrides": {
+        "mongodb": "^6.10.0"
+    },
     "scripts": {
         "start": "node server.js",
-        "build": "npm install --omit=dev --legacy-peer-deps",
+        "build": "npm install --legacy-peer-deps && npm prune --production",
         "dev": "node server.js",
         "clean": "rm -rf node_modules package-lock.json"
     }
