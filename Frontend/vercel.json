@@ -7,14 +7,6 @@
       "VITE_API_URL": "https://sigmagpt-final.onrender.com/api"
     }
   },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node"
-    }
-  ],
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",
