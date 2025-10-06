@@ -72,8 +72,11 @@ app.listen(PORT, async () => {
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URL);
+    // Use MONGODB_URI for production (standard env var) or fall back to MONGODB_URL for local dev
+    const mongoUrl = process.env.MONGODB_URI || process.env.MONGODB_URL;
+    await mongoose.connect(mongoUrl);
     console.log('✅ MongoDB connected successfully');
+    console.log(`🔗 Connected to: ${mongoUrl.replace(/\/\/.*@/, '//***:***@')}`); // Hide credentials in logs
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
     console.error('Make sure MongoDB is running and the connection string is correct');
