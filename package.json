@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "test": "cd Backend && npm test"
+  },
   "dependencies": {
     "faiss-node": "^0.5.1",
     "node": "^20.19.4"
