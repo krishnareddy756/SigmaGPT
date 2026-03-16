@@ -21,7 +21,7 @@ if (!apiKey || apiKey.length < 20) {
 console.log('✅ Groq API key validated, length:', apiKey.length);
 
 const groq = new Groq({ apiKey });
-const modelName = process.env.GROQ_CHAT_MODEL || 'llama-3.1-70b-versatile';
+const modelName = process.env.GROQ_CHAT_MODEL || 'llama-3.2-90b-vision-preview';
 
 export const processWithAgent = async (input, chatHistory = [], streamCallback = null, fileContext = '') => {
   try {
