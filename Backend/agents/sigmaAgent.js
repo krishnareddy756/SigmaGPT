@@ -1,5 +1,5 @@
 // agents/sigmaAgent.js
-import { ChatOpenAI } from '@langchain/openai';
+import { ChatGroq } from '@langchain/groq';
 import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { calculatorTool } from '../tools/calculator.js';
@@ -15,16 +15,16 @@ const cleanApiKey = (apiKey) => {
   return cleaned.length > 0 ? cleaned : null;
 };
 
-const apiKey = cleanApiKey(process.env.OPENAI_API_KEY);
+const apiKey = cleanApiKey(process.env.GROQ_API_KEY);
 
 if (!apiKey || apiKey.length < 20) {
-  console.error('❌ OpenAI API key is missing or invalid');
+  console.error('❌ Groq API key is missing or invalid');
   console.error('API key length:', apiKey ? apiKey.length : 0);
-  console.error('Make sure OPENAI_API_KEY is set in your .env file');
-  throw new Error('OpenAI API key is required');
+  console.error('Make sure GROQ_API_KEY is set in your .env file');
+  throw new Error('Groq API key is required');
 }
 
-console.log('✅ OpenAI API key validated, length:', apiKey.length);
+console.log('✅ Groq API key validated, length:', apiKey.length);
 
 // Initialize the LLM
 let llm = null;
@@ -34,9 +34,9 @@ const initializeAgent = async () => {
   if (agentExecutor) return agentExecutor;
 
   try {
-    llm = new ChatOpenAI({
+    llm = new ChatGroq({
       apiKey: apiKey,
-      model: process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
+      model: process.env.GROQ_CHAT_MODEL || "mixtral-8x7b-32768",
       temperature: 0.0,
       streaming: true,
     });
